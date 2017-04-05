@@ -1,1 +1,10 @@
 C:\Users\UlaBorys\Desktop\Windows Programming\TheKnight\TheKnight\bin\Debug\TheKnight.exe.config
+C:\Users\UlaBorys\Desktop\Windows Programming\TheKnight\TheKnight\bin\Debug\TheKnight.exe
+C:\Users\UlaBorys\Desktop\Windows Programming\TheKnight\TheKnight\bin\Debug\TheKnight.pdb
+C:\Users\UlaBorys\Desktop\Windows Programming\TheKnight\TheKnight\obj\Debug\TheKnight.csprojResolveAssemblyReference.cache
+C:\Users\UlaBorys\Desktop\Windows Programming\TheKnight\TheKnight\obj\Debug\TheKnight.Form1.resources
+C:\Users\UlaBorys\Desktop\Windows Programming\TheKnight\TheKnight\obj\Debug\TheKnight.Properties.Resources.resources
+C:\Users\UlaBorys\Desktop\Windows Programming\TheKnight\TheKnight\obj\Debug\TheKnight.csproj.GenerateResource.Cache
+C:\Users\UlaBorys\Desktop\Windows Programming\TheKnight\TheKnight\obj\Debug\TheKnight.exe
+C:\Users\UlaBorys\Desktop\Windows Programming\TheKnight\TheKnight\obj\Debug\TheKnight.pdb
+C:\Users\UlaBorys\Desktop\Windows Programming\TheKnight\TheKnight\obj\Debug\TheKnight.Form2.resources
