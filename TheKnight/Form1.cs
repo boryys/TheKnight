@@ -34,8 +34,6 @@ namespace TheKnight
         {
             PictureBoxList = new List<PictureBox>();
 
-            int clr;
-
             Board.Controls.Clear();
             Board.ColumnStyles.Clear();
             Board.RowStyles.Clear();
@@ -43,41 +41,68 @@ namespace TheKnight
             Board.ColumnCount = size;
             Board.RowCount = size;
 
-            for (int i = 0; i < size; i++)
+            for (int row = 0; row < size; row++)
             {
                 Board.RowStyles.Add(new RowStyle(SizeType.Percent, (float)100.0 / size));
                 Board.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, (float)100.0 / size));
 
-                for (int j = 0; j < size; j++)
+                for (int column = 0; column < size; column++)
                 {
                     PictureBox PictureBox = new PictureBox();
-                    PictureBox.Tag = new Point(i, j);
+                    PictureBox.Tag = new Point(column, row);
                     PictureBox.Dock = DockStyle.Fill;
-                    PictureBox.Margin = new Padding(0,0,0,0);
+                    PictureBox.Margin = new Padding(0, 0, 0, 0);
 
-                    clr = rnd.Next(0, 2);
-                    if (clr == 0) PictureBox.BackColor = Color.Maroon;
-                    else PictureBox.BackColor = Color.ForestGreen;
+                    ColorCells(PictureBox, column, row);
 
                     PictureBoxList.Add(PictureBox);
                     Board.Controls.Add(PictureBox);
                 }
             }
-
+           
+            direction = true;
             SetKnight();
+        }
+
+        private void ColorCells(PictureBox box, int column, int row)
+        {
+            int clr;
+            bool wall = false;
+
+            if(column-1 >= 0)
+            {
+                if (Board.GetControlFromPosition(column-1, row).BackColor == Color.Maroon) wall = true;
+                else
+                {
+                    if(row-1 >= 0)
+                    {
+                        if (Board.GetControlFromPosition(column, row-1).BackColor == Color.Maroon) wall = true;
+                    }
+                }
+            }
+
+            if(wall) clr = rnd.Next(0, 2);
+            else clr = rnd.Next(0, 5);
+
+            if (clr == 0) box.BackColor = Color.Maroon;
+            else box.BackColor = Color.ForestGreen;
         }
 
         private void NextGame(int size)
         {
-            int clr;
+            PictureBox box;
 
-            for (int i = 0; i < PictureBoxList.Count; i++)
+            for (int row = 0; row < size; row++)
             {
-                clr = rnd.Next(0, 2);
-                if (clr == 0) PictureBoxList.ElementAt(i).BackColor = Color.Maroon;
-                else PictureBoxList.ElementAt(i).BackColor = Color.ForestGreen;
-                PictureBoxList.ElementAt(i).Image = null;
+                for (int column = 0; column < size; column++)
+                {
+                    box = (PictureBox)Board.GetControlFromPosition(column, row);
+                    box.Image = null;
+                    ColorCells(box, column, row);
+                }
             }
+
+            direction = true;
             SetKnight();
         }
 
@@ -196,8 +221,6 @@ namespace TheKnight
             if (e.KeyCode == Keys.Left) movel = true;
             if (e.KeyCode == Keys.Right) mover = true;
         }
-
-
 
         private void newGameToolStripMenuItem_Click(object sender, EventArgs e)
         {
