@@ -21,6 +21,10 @@ namespace TheKnight
         bool direction;
         bool dooropen;
 
+        bool EditMode = false;
+        bool EditWall = true;
+        PictureBox helper;
+
         bool moved = true;
         bool moveu = true;
         bool movel = true;
@@ -57,6 +61,7 @@ namespace TheKnight
                     PictureBox.Tag = new Point(column, row);
                     PictureBox.Dock = DockStyle.Fill;
                     PictureBox.Margin = new Padding(0, 0, 0, 0);
+                    PictureBox.MouseDown += new MouseEventHandler(PictureBox_MouseDown);
 
                     ColorCells(PictureBox, column, row);
 
@@ -200,82 +205,85 @@ namespace TheKnight
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
-            PictureBox current = (PictureBox)Board.GetControlFromPosition(Pos.X, Pos.Y);
-
-            if (e.KeyCode == Keys.Down)
+            if (!EditMode)
             {
-                if (moved == true)
+                PictureBox current = (PictureBox)Board.GetControlFromPosition(Pos.X, Pos.Y);
+
+                if (e.KeyCode == Keys.Down)
                 {
-                    if (Pos.Y + 1 < BoardSize)
+                    if (moved == true)
                     {
-                        MoveKnight(current, Pos.X, Pos.Y + 1);
-                        moved = false;
+                        if (Pos.Y + 1 < BoardSize)
+                        {
+                            MoveKnight(current, Pos.X, Pos.Y + 1);
+                            moved = false;
+                        }
                     }
                 }
-            }
 
-            if (e.KeyCode == Keys.Up)
-            {
-                if (moveu == true)
+                if (e.KeyCode == Keys.Up)
                 {
-                    if (Pos.Y - 1 >= 0)
+                    if (moveu == true)
                     {
-                        MoveKnight(current, Pos.X, Pos.Y - 1);
-                        moveu = false;
+                        if (Pos.Y - 1 >= 0)
+                        {
+                            MoveKnight(current, Pos.X, Pos.Y - 1);
+                            moveu = false;
+                        }
                     }
                 }
-            }
 
-            if (e.KeyCode == Keys.Right)
-            {
-                if (mover == true)
+                if (e.KeyCode == Keys.Right)
                 {
-                    direction = true;
-                    if (Pos.X + 1 < BoardSize)
+                    if (mover == true)
                     {
-                        MoveKnight(current, Pos.X + 1, Pos.Y);
-                        mover = false;
+                        direction = true;
+                        if (Pos.X + 1 < BoardSize)
+                        {
+                            MoveKnight(current, Pos.X + 1, Pos.Y);
+                            mover = false;
+                        }
+                        else DrawKnight(current);
                     }
-                    else DrawKnight(current);
                 }
-            }
 
-            if (e.KeyCode == Keys.Left)
-            {
-                if (movel == true)
+                if (e.KeyCode == Keys.Left)
                 {
-                    direction = false;
-                    if (Pos.X - 1 >= 0)
+                    if (movel == true)
                     {
-                        MoveKnight(current, Pos.X - 1, Pos.Y);
-                        movel = false;
+                        direction = false;
+                        if (Pos.X - 1 >= 0)
+                        {
+                            MoveKnight(current, Pos.X - 1, Pos.Y);
+                            movel = false;
+                        }
+                        else DrawKnight(current);
                     }
-                    else DrawKnight(current);
                 }
-            }
 
-            if (e.KeyCode == Keys.Space)
-            {
-                try
+                if (e.KeyCode == Keys.Space)
                 {
-                    Board.GetControlFromPosition(Pos.X - 1, Pos.Y).BackColor = Color.ForestGreen;
+                    try
+                    {
+                        Board.GetControlFromPosition(Pos.X - 1, Pos.Y).BackColor = Color.ForestGreen;
+                    }
+                    catch { }
+                    try
+                    {
+                        Board.GetControlFromPosition(Pos.X + 1, Pos.Y).BackColor = Color.ForestGreen;
+                    }
+                    catch { }
+                    try
+                    {
+                        Board.GetControlFromPosition(Pos.X, Pos.Y - 1).BackColor = Color.ForestGreen;
+                    }
+                    catch { }
+                    try
+                    {
+                        Board.GetControlFromPosition(Pos.X, Pos.Y + 1).BackColor = Color.ForestGreen;
+                    }
+                    catch { }
                 }
-                catch { }
-                try
-                {
-                    Board.GetControlFromPosition(Pos.X + 1, Pos.Y).BackColor = Color.ForestGreen;
-                }
-                catch { }
-                try
-                {
-                    Board.GetControlFromPosition(Pos.X, Pos.Y - 1).BackColor = Color.ForestGreen;
-                }
-                catch { }
-                try
-                {
-                    Board.GetControlFromPosition(Pos.X, Pos.Y + 1).BackColor = Color.ForestGreen;
-                }
-                catch { }
             }
         }
 
@@ -337,6 +345,113 @@ namespace TheKnight
                 return true;
             }
             return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        private void editModeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!EditMode)
+            {
+                EditMode = true;
+                menuStrip.BackColor = Color.Gold;
+                leftClickToolStripMenuItem.Visible = true;
+                editModeToolStripMenuItem.Text = "Game mode";
+            }
+            else
+            {
+                EditMode = false;
+                menuStrip.BackColor = SystemColors.Control;
+                leftClickToolStripMenuItem.Visible = false;
+                editModeToolStripMenuItem.Text = "Edit mode";
+            }
+        }
+
+        private void grassToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            grassToolStripMenuItem.Checked = true;
+            wallToolStripMenuItem.Checked = false;
+
+            EditWall = false;
+        }
+
+        private void wallToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            grassToolStripMenuItem.Checked = false;
+            wallToolStripMenuItem.Checked = true;
+
+            EditWall = true;
+        }
+
+        private void PictureBox_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (EditMode)
+            {
+                helper = (PictureBox)sender;
+
+                if (e.Button == MouseButtons.Left)
+                {
+                    if (EditWall)
+                    {
+                        if (helper.Image == null) helper.BackColor = Color.Maroon;
+                    }
+                    else
+                    {
+                        if (helper.Image == null) helper.BackColor = Color.ForestGreen;
+                    }
+                }
+
+                if (e.Button == MouseButtons.Right)
+                {
+                    context.Show(Cursor.Position);
+                }
+            }
+        }
+
+        private void knightToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (helper.Image == null)
+            {
+                PictureBox current = (PictureBox)Board.GetControlFromPosition(Pos.X, Pos.Y);
+                current.Image = null;
+                helper.BackColor = Color.ForestGreen;
+                DrawKnight(helper);
+                Pos = (Point)helper.Tag;
+            }
+        }
+
+        private void keyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (helper.Image == null)
+            {
+                PictureBox current = (PictureBox)Board.GetControlFromPosition(PosKey.X, PosKey.Y);
+                current.Image = null;
+                helper.BackColor = Color.ForestGreen;
+
+                Bitmap src;
+                src = Properties.Resources.key2;
+                src.MakeTransparent();
+                helper.Image = src;
+                helper.SizeMode = PictureBoxSizeMode.StretchImage;
+                PosKey = (Point)helper.Tag;
+            }
+        }
+
+        private void doorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (helper.Image == null)
+            {
+                PictureBox current = (PictureBox)Board.GetControlFromPosition(PosDoor.X, PosDoor.Y);
+                current.Image = null;
+                helper.BackColor = Color.ForestGreen;
+
+                Bitmap src;
+                if(dooropen) src = Properties.Resources.opened_door;
+                else src = Properties.Resources.closed_door;
+
+                src.MakeTransparent();
+                helper.Image = src;
+                helper.SizeMode = PictureBoxSizeMode.StretchImage;
+                PosDoor = (Point)helper.Tag;
+            }
         }
     }
 }
