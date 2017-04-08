@@ -13,6 +13,7 @@ namespace TheKnight
     public partial class Form1 : Form
     {
         List<PictureBox> PictureBoxList;
+        Form3 splash;
         Random rnd = new Random();
         public int BoardSize { get; set; }
         Point Pos;
@@ -30,8 +31,9 @@ namespace TheKnight
         bool movel = true;
         bool mover = true;
 
-        public Form1()
+        public Form1(Form3 _splash)
         {
+            splash = _splash;
             InitializeComponent();
             BoardSize = 8;
             NewGame(BoardSize);
@@ -317,6 +319,7 @@ namespace TheKnight
             if (PreClosingConfirmation() == System.Windows.Forms.DialogResult.Yes)
             {
                 Dispose();
+                splash.Dispose();
             }
             else
             {
