@@ -16,7 +16,10 @@ namespace TheKnight
         Random rnd = new Random();
         public int BoardSize { get; set; }
         Point Pos;
-        bool direction = true;
+        Point PosKey;
+        Point PosDoor;
+        bool direction;
+        bool dooropen;
 
         bool moved = true;
         bool moveu = true;
@@ -33,6 +36,8 @@ namespace TheKnight
         public void NewGame(int size)
         {
             PictureBoxList = new List<PictureBox>();
+            direction = true;
+            dooropen = false;
 
             Board.Controls.Clear();
             Board.ColumnStyles.Clear();
@@ -59,9 +64,10 @@ namespace TheKnight
                     Board.Controls.Add(PictureBox);
                 }
             }
-           
-            direction = true;
+
             SetKnight();
+            SetKeyandDoor(true);
+            SetKeyandDoor(false);
         }
 
         private void ColorCells(PictureBox box, int column, int row)
@@ -91,6 +97,8 @@ namespace TheKnight
         private void NextGame(int size)
         {
             PictureBox box;
+            direction = true;
+            dooropen = false;
 
             for (int row = 0; row < size; row++)
             {
@@ -101,9 +109,9 @@ namespace TheKnight
                     ColorCells(box, column, row);
                 }
             }
-
-            direction = true;
             SetKnight();
+            SetKeyandDoor(true);
+            SetKeyandDoor(false);
         }
 
         private void SetKnight()
@@ -115,6 +123,37 @@ namespace TheKnight
             Pos = (Point)prc.Tag;
 
             DrawKnight(prc);
+        }
+
+        private void SetKeyandDoor(bool key)
+        {
+            int random = 0;
+            bool grass = false;
+            Bitmap src;
+
+            while (!grass)
+            {
+                random = rnd.Next(0, PictureBoxList.Count);
+                if (PictureBoxList.ElementAt(random).Image == null)
+                {
+                    if (PictureBoxList.ElementAt(random).BackColor == Color.ForestGreen) grass = true;
+                }
+            }
+
+            if (key)
+            {
+                PosKey = (Point)PictureBoxList.ElementAt(random).Tag;
+                src = Properties.Resources.key2;
+            }
+            else
+            {
+                PosDoor = (Point)PictureBoxList.ElementAt(random).Tag;
+                src = Properties.Resources.closed_door;
+            }
+
+            src.MakeTransparent();
+            PictureBoxList.ElementAt(random).Image = src;
+            PictureBoxList.ElementAt(random).SizeMode = PictureBoxSizeMode.StretchImage;
         }
 
         private void DrawKnight(PictureBox box)
@@ -130,24 +169,47 @@ namespace TheKnight
             box.SizeMode = PictureBoxSizeMode.StretchImage;
         }
 
+        private void MoveKnight(PictureBox current, int nextX, int nextY)
+        {
+            Point next = new Point(nextX, nextY);
+            PictureBox NextStep = (PictureBox)Board.GetControlFromPosition(nextX, nextY);
+            if (NextStep.BackColor == Color.ForestGreen && (next != PosDoor || dooropen))
+            {
+                current.Image = null;
+                DrawKnight(NextStep);
+                Pos.Y = nextY;
+                Pos.X = nextX;
+            }
+            else DrawKnight(current);
+
+            if(Pos == PosKey)
+            {
+                dooropen = true;
+                PictureBox Door = (PictureBox)Board.GetControlFromPosition(PosDoor.X, PosDoor.Y);
+                Bitmap src = Properties.Resources.opened_door;
+                src.MakeTransparent();
+                Door.Image = src;
+                Door.SizeMode = PictureBoxSizeMode.StretchImage;
+            }
+
+            if (Pos == PosDoor)
+            {
+                NextGame(BoardSize);
+            }
+        }
+
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
-            PictureBox current = (PictureBox)Board.GetControlFromPosition(Pos.Y, Pos.X);
+            PictureBox current = (PictureBox)Board.GetControlFromPosition(Pos.X, Pos.Y);
 
             if (e.KeyCode == Keys.Down)
             {
                 if (moved == true)
                 {
-                    if (Pos.X + 1 < BoardSize)
+                    if (Pos.Y + 1 < BoardSize)
                     {
-                        PictureBox NextStep = (PictureBox)Board.GetControlFromPosition(Pos.Y, Pos.X + 1);
-                        if (NextStep.BackColor == Color.ForestGreen)
-                        {
-                            moved = false;
-                            current.Image = null;
-                            DrawKnight(NextStep);
-                            Pos.X++;
-                        }
+                        MoveKnight(current, Pos.X, Pos.Y + 1);
+                        moved = false;
                     }
                 }
             }
@@ -156,16 +218,10 @@ namespace TheKnight
             {
                 if (moveu == true)
                 {
-                    if (Pos.X - 1 >= 0)
+                    if (Pos.Y - 1 >= 0)
                     {
-                        PictureBox NextStep = (PictureBox)Board.GetControlFromPosition(Pos.Y, Pos.X - 1);
-                        if (NextStep.BackColor == Color.ForestGreen)
-                        {
-                            moveu = false;
-                            current.Image = null;
-                            DrawKnight(NextStep);
-                            Pos.X--;
-                        }
+                        MoveKnight(current, Pos.X, Pos.Y - 1);
+                        moveu = false;
                     }
                 }
             }
@@ -175,17 +231,10 @@ namespace TheKnight
                 if (mover == true)
                 {
                     direction = true;
-                    if (Pos.Y + 1 < BoardSize)
-                    { 
-                        PictureBox NextStep = (PictureBox)Board.GetControlFromPosition(Pos.Y + 1, Pos.X);
-                        if (NextStep.BackColor == Color.ForestGreen)
-                        {
-                            mover = false;
-                            current.Image = null;
-                            DrawKnight(NextStep);
-                            Pos.Y++;
-                        }
-                        else DrawKnight(current);
+                    if (Pos.X + 1 < BoardSize)
+                    {
+                        MoveKnight(current, Pos.X + 1, Pos.Y);
+                        mover = false;
                     }
                     else DrawKnight(current);
                 }
@@ -196,21 +245,37 @@ namespace TheKnight
                 if (movel == true)
                 {
                     direction = false;
-                    if (Pos.Y - 1 >= 0)
+                    if (Pos.X - 1 >= 0)
                     {
-                        direction = false;
-                        PictureBox NextStep = (PictureBox)Board.GetControlFromPosition(Pos.Y - 1, Pos.X);
-                        if (NextStep.BackColor == Color.ForestGreen)
-                        {
-                            movel = false;
-                            current.Image = null;
-                            DrawKnight(NextStep);
-                            Pos.Y--;
-                        }
-                        else DrawKnight(current);
+                        MoveKnight(current, Pos.X - 1, Pos.Y);
+                        movel = false;
                     }
                     else DrawKnight(current);
                 }
+            }
+
+            if (e.KeyCode == Keys.Space)
+            {
+                try
+                {
+                    Board.GetControlFromPosition(Pos.X - 1, Pos.Y).BackColor = Color.ForestGreen;
+                }
+                catch { }
+                try
+                {
+                    Board.GetControlFromPosition(Pos.X + 1, Pos.Y).BackColor = Color.ForestGreen;
+                }
+                catch { }
+                try
+                {
+                    Board.GetControlFromPosition(Pos.X, Pos.Y - 1).BackColor = Color.ForestGreen;
+                }
+                catch { }
+                try
+                {
+                    Board.GetControlFromPosition(Pos.X, Pos.Y + 1).BackColor = Color.ForestGreen;
+                }
+                catch { }
             }
         }
 
