@@ -92,7 +92,7 @@
             this.MinimizeBox = false;
             this.Name = "Form2";
             this.ShowIcon = false;
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Settings";
             this.ResumeLayout(false);
             this.PerformLayout();

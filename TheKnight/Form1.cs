@@ -423,17 +423,23 @@ namespace TheKnight
 
         private void keyToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (helper.Image == null)
-            {
-                PictureBox current = (PictureBox)Board.GetControlFromPosition(PosKey.X, PosKey.Y);
-                current.Image = null;
-                helper.BackColor = Color.ForestGreen;
+             if (helper.Image == null)
+             {
+                    PictureBox current = (PictureBox)Board.GetControlFromPosition(PosKey.X, PosKey.Y);
+                    current.Image = null;
+                    helper.BackColor = Color.ForestGreen;
 
-                Bitmap src;
-                src = Properties.Resources.key2;
-                src.MakeTransparent();
-                helper.Image = src;
-                helper.SizeMode = PictureBoxSizeMode.StretchImage;
+                    Bitmap src;
+                    src = Properties.Resources.key2;
+                    src.MakeTransparent();
+                    helper.Image = src;
+                    helper.SizeMode = PictureBoxSizeMode.StretchImage;
+
+                if (Pos == PosKey)
+                {
+                    DrawKnight((PictureBox)Board.GetControlFromPosition(Pos.X, Pos.Y));
+                }
+
                 PosKey = (Point)helper.Tag;
             }
         }
@@ -446,14 +452,13 @@ namespace TheKnight
                 current.Image = null;
                 helper.BackColor = Color.ForestGreen;
 
-                Bitmap src;
-                if(dooropen) src = Properties.Resources.opened_door;
-                else src = Properties.Resources.closed_door;
+                Bitmap src = Properties.Resources.closed_door;
 
                 src.MakeTransparent();
                 helper.Image = src;
                 helper.SizeMode = PictureBoxSizeMode.StretchImage;
                 PosDoor = (Point)helper.Tag;
+                dooropen = false;
             }
         }
     }
